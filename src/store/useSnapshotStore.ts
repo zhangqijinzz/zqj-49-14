@@ -11,6 +11,7 @@ interface SnapshotState {
     rangeType: RangeType;
     reportData: ReportData;
     recordIds: string[];
+    recordUpdatedAts: Record<string, string>;
   }) => void;
   renameSnapshot: (id: string, name: string) => void;
   deleteSnapshot: (id: string) => void;
@@ -40,7 +41,7 @@ const loadSnapshots = (): ReportSnapshot[] | null => {
 export const useSnapshotStore = create<SnapshotState>((set, get) => ({
   snapshots: [],
 
-  addSnapshot: ({ name, rangeType, reportData, recordIds }) => {
+  addSnapshot: ({ name, rangeType, reportData, recordIds, recordUpdatedAts }) => {
     const now = new Date().toISOString();
     const snapshot: ReportSnapshot = {
       id: generateId(),
@@ -49,6 +50,7 @@ export const useSnapshotStore = create<SnapshotState>((set, get) => ({
       rangeType,
       reportData,
       recordIds,
+      recordUpdatedAts,
     };
     const newSnapshots = [snapshot, ...get().snapshots];
     set({ snapshots: newSnapshots });

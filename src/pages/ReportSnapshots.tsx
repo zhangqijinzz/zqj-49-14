@@ -44,14 +44,11 @@ const ReportSnapshots: React.FC = () => {
   const [deleteConfirmId, setDeleteConfirmId] = React.useState<string | null>(null);
 
   const checkStale = (snapshot: ReportSnapshot): boolean => {
-    const currentIds = new Set(
-      records
-        .filter((r) => {
-          const d = r.date;
-          return d >= snapshot.reportData.startDate && d <= snapshot.reportData.endDate;
-        })
-        .map((r) => r.id)
-    );
+    const currentRecords = records.filter((r) => {
+      const d = r.date;
+      return d >= snapshot.reportData.startDate && d <= snapshot.reportData.endDate;
+    });
+    const currentIds = new Set(currentRecords.map((r) => r.id));
     const snapshotIds = new Set(snapshot.recordIds);
     if (currentIds.size !== snapshotIds.size) return true;
     for (const id of currentIds) {
@@ -59,6 +56,10 @@ const ReportSnapshots: React.FC = () => {
     }
     for (const id of snapshotIds) {
       if (!currentIds.has(id)) return true;
+    }
+    const savedUpdatedAts = snapshot.recordUpdatedAts ?? {};
+    for (const r of currentRecords) {
+      if (savedUpdatedAts[r.id] !== r.updatedAt) return true;
     }
     return false;
   };

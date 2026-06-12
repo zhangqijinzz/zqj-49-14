@@ -121,6 +121,7 @@ export interface ReportSnapshot {
   rangeType: RangeType;
   reportData: ReportData;
   recordIds: string[];
+  recordUpdatedAts: Record<string, string>;
 }
 
 // 时间段统计：按时段汇总的统计信息

@@ -530,11 +530,16 @@ ${styles}
         ? format(parseISO(start), 'yyyy年MM月dd日', { locale: zhCN })
         : `${format(parseISO(start), 'yyyy.MM.dd')} - ${format(parseISO(end), 'MM.dd')}`;
     const name = `${rangeLabelMap[rangeType]}报告 · ${dateRangeText}`;
+    const recordUpdatedAts: Record<string, string> = {};
+    reportData.records.forEach((r) => {
+      recordUpdatedAts[r.id] = r.updatedAt;
+    });
     addSnapshot({
       name,
       rangeType,
       reportData,
       recordIds: reportData.records.map((r) => r.id),
+      recordUpdatedAts,
     });
     setTimeout(() => setSnapshotSaving(false), 1200);
   };

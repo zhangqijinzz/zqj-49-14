@@ -84,6 +84,45 @@ export interface TagStats {
   color: string;     // 标签颜色
 }
 
+export type RangeType = 'day' | 'week' | 'month' | 'custom';
+
+export interface NoiseTypeStat {
+  type: NoiseType;
+  name: string;
+  count: number;
+  color: string;
+}
+
+export interface LocationStat {
+  key: string;
+  name: string;
+  count: number;
+}
+
+export interface ReportData {
+  records: NoiseRecord[];
+  startDate: string;
+  endDate: string;
+  totalCount: number;
+  totalMinutes: number;
+  avgIntensity: number;
+  dailyStats: DailyStats[];
+  tagStats: TagStats[];
+  noiseTypeStats: NoiseTypeStat[];
+  locationStats: LocationStat[];
+  timeRangeStats: TimeRangeStats;
+  nightCount: number;
+}
+
+export interface ReportSnapshot {
+  id: string;
+  name: string;
+  createdAt: string;
+  rangeType: RangeType;
+  reportData: ReportData;
+  recordIds: string[];
+}
+
 // 时间段统计：按时段汇总的统计信息
 export interface TimeRangeStats {
   morning: number;    // 早晨时段（6:00-12:00）记录数

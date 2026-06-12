@@ -6,6 +6,7 @@ import {
   FileBarChart,
   Volume2,
   Plus,
+  Camera,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/Button';
@@ -53,6 +54,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: FileBarChart,
     label: '汇总导出',
     hint: '报告与数据导出',
+  },
+  {
+    to: '/snapshots',
+    icon: Camera,
+    label: '报告快照',
+    hint: '查看已保存的报告快照',
   },
 ];
 

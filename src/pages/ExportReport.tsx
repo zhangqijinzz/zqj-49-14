@@ -18,6 +18,8 @@ import {
   Sun,
   Sunset,
   Sunrise,
+  Camera,
+  Check,
 } from 'lucide-react';
 import {
   format,
@@ -32,10 +34,11 @@ import {
 } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { useRecordsStore } from '@/store/useRecordsStore';
+import { useSnapshotStore } from '@/store/useSnapshotStore';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import type { NoiseRecord, NoiseType, DailyStats, TagStats, TimeRangeStats } from '@/types';
+import type { NoiseRecord, NoiseType, DailyStats, TagStats, TimeRangeStats, RangeType as RangeTypeEnum, ReportData as ReportDataType } from '@/types';
 import { noiseTypes } from '@/constants/noiseTypes';
 import { impactTags } from '@/constants/impactTags';
 import { locations } from '@/constants/locations';
@@ -43,22 +46,9 @@ import { cn } from '@/lib/utils';
 import { getDurationText } from '@/utils/dateUtils';
 import { formatIntensity } from '@/utils/formatUtils';
 
-type RangeType = 'day' | 'week' | 'month' | 'custom';
+type RangeType = RangeTypeEnum;
 
-interface ReportData {
-  records: NoiseRecord[];
-  startDate: string;
-  endDate: string;
-  totalCount: number;
-  totalMinutes: number;
-  avgIntensity: number;
-  dailyStats: DailyStats[];
-  tagStats: TagStats[];
-  noiseTypeStats: { type: NoiseType; name: string; count: number; color: string }[];
-  locationStats: { key: string; name: string; count: number }[];
-  timeRangeStats: TimeRangeStats;
-  nightCount: number;
-}
+interface ReportData extends ReportDataType {}
 
 /**
  * 汇总导出页面
@@ -67,6 +57,7 @@ interface ReportData {
  */
 const ExportReport: React.FC = () => {
   const { records } = useRecordsStore();
+  const { addSnapshot } = useSnapshotStore();
 
   const [rangeType, setRangeType] = React.useState<RangeType>('week');
   const [customStart, setCustomStart] = React.useState<string>(
@@ -77,6 +68,7 @@ const ExportReport: React.FC = () => {
   );
   const [isPrintMode, setIsPrintMode] = React.useState(false);
   const [showRangeDropdown, setShowRangeDropdown] = React.useState(false);
+  const [snapshotSaving, setSnapshotSaving] = React.useState(false);
 
   // 根据选择的范围类型计算起止日期
   const getDateRange = React.useCallback((): { start: string; end: string } => {
@@ -530,6 +522,23 @@ ${styles}
     custom: '自定义',
   };
 
+  const handleSaveSnapshot = () => {
+    setSnapshotSaving(true);
+    const { start, end } = getDateRange();
+    const dateRangeText =
+      start === end
+        ? format(parseISO(start), 'yyyy年MM月dd日', { locale: zhCN })
+        : `${format(parseISO(start), 'yyyy.MM.dd')} - ${format(parseISO(end), 'MM.dd')}`;
+    const name = `${rangeLabelMap[rangeType]}报告 · ${dateRangeText}`;
+    addSnapshot({
+      name,
+      rangeType,
+      reportData,
+      recordIds: reportData.records.map((r) => r.id),
+    });
+    setTimeout(() => setSnapshotSaving(false), 1200);
+  };
+
   // 打印区域组件 - 与导出结构一致
   const PrintArea = () => (
     <div id="report-print-area" className={cn('space-y-6', isPrintMode && 'print-area')}>
@@ -899,7 +908,19 @@ ${styles}
               </p>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant="secondary"
+                onClick={handleSaveSnapshot}
+                disabled={snapshotSaving}
+              >
+                {snapshotSaving ? (
+                  <Check className="w-4 h-4 mr-1.5 text-emerald-500" />
+                ) : (
+                  <Camera className="w-4 h-4 mr-1.5" />
+                )}
+                {snapshotSaving ? '已保存' : '保存快照'}
+              </Button>
               <Button variant="secondary" onClick={handlePrint}>
                 <Printer className="w-4 h-4 mr-1.5" />
                 打印

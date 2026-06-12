@@ -57,9 +57,10 @@ const ReportSnapshots: React.FC = () => {
     for (const id of snapshotIds) {
       if (!currentIds.has(id)) return true;
     }
-    const savedUpdatedAts = snapshot.recordUpdatedAts ?? {};
-    for (const r of currentRecords) {
-      if (savedUpdatedAts[r.id] !== r.updatedAt) return true;
+    if (snapshot.recordUpdatedAts) {
+      for (const r of currentRecords) {
+        if (snapshot.recordUpdatedAts[r.id] !== r.updatedAt) return true;
+      }
     }
     return false;
   };
